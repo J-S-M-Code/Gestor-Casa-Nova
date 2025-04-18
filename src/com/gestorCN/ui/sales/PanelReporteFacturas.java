@@ -231,6 +231,7 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnCargar) {
+			ventasFechas = new ArrayList<Venta>();
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			String fechaDesde = (dateChooserDesde.getDate() != null) 
 					? sdf.format(dateChooserDesde.getDate()) : "No seleccionada";
@@ -286,9 +287,11 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		double montoTotal = 0;
 		double costoTotal = 0;
 		double gananciaTotal = 0;
-		for (Venta v : ventasFechas) {
-			montoTotal += v.getMonto();
-			costoTotal += v.getCosto();
+		if (ventasFechas != null) {
+			for (Venta v : ventasFechas) {
+				montoTotal += v.getMonto();
+				costoTotal += v.getCosto();
+			}
 		}
 		gananciaTotal = montoTotal - costoTotal;
 		
@@ -324,7 +327,7 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		Calendar hoy = GregorianCalendar.getInstance();
 		GregorianCalendar desde;
 		GregorianCalendar hasta;
-		if (fechaDesde != txtDefault && fechaDesde != txtDefault) {
+		if (!fechaDesde.equals(txtDefault) && !fechaHasta.equals(txtDefault)) {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		    try {
 		        desde = new GregorianCalendar();
@@ -334,7 +337,7 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		        hasta.setTime(sdf.parse(fechaHasta));
 
 
-		        if (hasta.before(hoy) && !desde.before(hasta)) {
+		        if (hasta.before(hoy) || desde.before(hasta)) {
 		            return true;
 		        }
 		    } catch (ParseException e) {

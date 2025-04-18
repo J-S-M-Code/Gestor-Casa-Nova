@@ -38,9 +38,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 import javax.swing.JComboBox;
@@ -84,7 +87,13 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
  		Image icono = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/icono.jpg"));
 	    setIconImage(icono);
 	    
- 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    addWindowListener(new WindowAdapter() {
+	        @Override
+	        public void windowClosing(WindowEvent e) {
+	            cancelarVenta(); 
+	            System.exit(0);  
+	        }
+	    });
 		setBounds(100, 100, 677, 475);
 		setMinimumSize(new Dimension(865, 600));
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -291,6 +300,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 									"Efectivo", "Tarjeta", "Chachos", "Transferencia"}));
 		comboBoxMediosPagos.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
+				calcularMontoTotal();
 				btnGuardarVenta.setVisible(comboBoxMediosPagos.getSelectedIndex() != 0
 						&& comboBoxCuotas.getSelectedIndex() != 0);
 			}
@@ -414,7 +424,6 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 		btnCancelarVenta.addActionListener(this);
 	}
 	
-
 	private void mostrarSugerencias() {
         String texto = textFieldBuscador.getText().toUpperCase();
         
@@ -428,11 +437,12 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
         for (Prenda ropa : gestorPrendas.getPrendasActivas()) {
         	boolean todasCoinciden = true;
         	for (String palabra : palabrasClaves) {
-        		boolean coincidenAtributos = ropa.getMarca().contains(palabra) ||
+        		boolean coincidenAtributos = String.valueOf(ropa.getIdRopa()).contains(palabra) ||
         				ropa.getCategoria().contains(palabra) ||
         				ropa.getTipo().contains(palabra) ||
         				ropa.getColor().contains(palabra) ||
-        				String.valueOf(ropa.getIdRopa()).contains(palabra) ||
+        				ropa.getDescripcion().contains(palabra) ||
+        				ropa.getMarca().contains(palabra) ||
         				String.valueOf(ropa.getTalle()).contains(palabra);
         		if (!coincidenAtributos) {
                     todasCoinciden = false;
@@ -444,6 +454,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
             }
         }
         modeloLista.clear();
+        coincidencias.sort(Comparator.comparingInt(Prenda::getIdRopa));
         if (!coincidencias.isEmpty()) {
         	scrollPaneSugerencia.setVisible(true);
             for (Prenda p : coincidencias) {
@@ -484,7 +495,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 			montoTotal *= 1.10;
 		}
 		if (montoTotal != 0.0) {
-			textFieldTotal.setText(String.format("%.1f", montoTotal * 1.10));
+			textFieldTotal.setText(String.format("%.1f", montoTotal));
 		}
 	}
 
@@ -522,6 +533,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
             							prendaSeleccionada.get(seleccion).getStock() +1);
             		prendaSeleccionada.remove(seleccion);
                     actualizarProductos();
+                    calcularMontoTotal();
             	}
 			} else {
 				JOptionPane.showMessageDialog(this, 
@@ -547,10 +559,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 		}
 		
 		if (e.getSource() == btnCancelarVenta) {
-			for (Prenda r : prendaSeleccionada) {
-				gestorPrendas.modificarStock(r, r.getStock() + 1);
-			}
-			limpiar();
+			cancelarVenta();
 		}
 
 		if (e.getSource() == btnReportesVentas) {
@@ -560,4 +569,12 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 			rv.toFront();
 		}
 	}
+
+	private void cancelarVenta() {
+		for (Prenda r : prendaSeleccionada) {
+			gestorPrendas.modificarStock(r, r.getStock() + 1);
+		}
+		limpiar();
+	}
+	
 }
