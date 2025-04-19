@@ -339,7 +339,7 @@ private static final long serialVersionUID = 1L;
 		String talleAux;
 		String genero = null;
 		String categoria = null;
-		int talle;
+		String talle;
 		int stock;
 		double precio;
 		double costo;
@@ -356,7 +356,7 @@ private static final long serialVersionUID = 1L;
 			if ((!talleAux.equals("Seleccione una opcion") && 
 					(!textFieldStock.getText().equals("")) &&
 					(!textFieldPrecio.getText().equals("")))) {
-				talle = Integer.parseInt(talleAux);
+				talle = talleAux;
 				stock = Integer.parseInt(textFieldStock.getText().trim());
 				precio = Double.parseDouble(textFieldPrecio.getText().trim());
 				costo = Double.parseDouble(textFieldCosto.getText().trim());
@@ -364,7 +364,7 @@ private static final long serialVersionUID = 1L;
 					throw new NumberFormatException();
 				}
 			} else {
-				talle = -1;
+				talle = "-1";
 				stock = 0;
 				precio = -1;
 				costo = -1;

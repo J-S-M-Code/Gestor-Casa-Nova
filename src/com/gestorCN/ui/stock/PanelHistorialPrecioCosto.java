@@ -186,7 +186,7 @@ public class PanelHistorialPrecioCosto extends JFrame {
 		textFieldMarca.setText(prenda.getMarca());
 		textFieldTipo.setText(prenda.getTipo());
 		textFieldColor.setText(prenda.getColor());
-		textFieldTalle.setText(Integer.toString(prenda.getTalle()));
+		textFieldTalle.setText(prenda.getTalle());
 		textAreaDescripcion.setText(prenda.getDescripcion());
 	}
 	

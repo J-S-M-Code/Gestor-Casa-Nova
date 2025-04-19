@@ -69,6 +69,7 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 	private JComboBox<?> cbFiltroTalle;
 	private JLabel lblFiltro;
 	private JComboBox<?> cbFiltroCategoria;
+	private JButton btnAjusteCosto;
 	
 	public PanelGestorStock(PanelGestorVentas panelGestorVentas, GestorPrendas gestorPrendas) {
 		setTitle("Casa Nova - Gestor Stock");
@@ -148,6 +149,11 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 		btnAjustePrecio.addActionListener(this);
 		btnAjustePrecio.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		panelSuperiorBtn.add(btnAjustePrecio);
+		
+		btnAjusteCosto = new JButton("Ajuste Costo");
+		btnAjusteCosto.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		btnAjusteCosto.addActionListener(this);
+		panelSuperiorBtn.add(btnAjusteCosto);
 		panelSuperiorBtn.add(chckbxVistaActivos);
 		
 		btnCaracteristicas = new JButton("Caracteristicas");
@@ -310,38 +316,18 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 		int rowIndex = 0;
 		if (this.listaPrendas != null) {
 			for (Prenda p : listaPrendas) {
-				if (!p.getCategoria().equals("PANTALON") 
-						&& !p.getCategoria().equals("POLLERA")
-						&& !p.getCategoria().equals("SHORT") 
-						&& !p.getCategoria().equals("VERMUDA")) {
-					String talleRemera = talleRemerasString(p.getTalle(), p.getGenero());
-					Object[] fila = {
-							p.getMarca(),
-							p.getCategoria(),
-							p.getTipo(),
-							p.getColor(),
-							p.getDescripcion(),
-							talleRemera,
-							p.getStock(),
-							p.getUltimoCosto(),
-							p.getUltimoPrecio()
-					};
-					model.addRow(fila);
-				} else {
-					Object[] fila = {
-							p.getMarca(),
-							p.getCategoria(),
-							p.getTipo(),
-							p.getColor(),
-							p.getDescripcion(),
-							p.getTalle(),
-							p.getStock(),
-							p.getUltimoCosto(),
-							p.getUltimoPrecio()
-					};
-					model.addRow(fila);
-				}
-				
+				Object[] fila = {
+						p.getMarca(),
+						p.getCategoria(),
+						p.getTipo(),
+						p.getColor(),
+						p.getDescripcion(),
+						p.getTalle(),
+						p.getStock(),
+						p.getUltimoCosto(),
+						p.getUltimoPrecio()
+				};
+				model.addRow(fila);
 				mapaFilaRopa.put(rowIndex, p);
 				rowIndex++;
 			}
@@ -358,85 +344,26 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 		int rowIndex = 0;
 		if (prendasFiltradas != null) {
 			for (Prenda p : prendasFiltradas) {
-				if (!p.getCategoria().equals("PANTALON") && !p.getCategoria().equals("POLLERA")
-						&& !p.getCategoria().equals("SHORT") && !p.getCategoria().equals("VERMUDA")) {
-					String talleRemera = talleRemerasString(p.getTalle(), p.getGenero());
-					Object[] fila = {
-							p.getMarca(),
-							p.getCategoria(),
-							p.getTipo(),
-							p.getColor(),
-							p.getDescripcion(),
-							talleRemera,
-							p.getStock(),
-							p.getUltimoCosto(),
-							p.getUltimoPrecio()
-					};
-					model.addRow(fila);
-				} else {
-					Object[] fila = {
-							p.getMarca(),
-							p.getCategoria(),
-							p.getTipo(),
-							p.getColor(),
-							p.getDescripcion(),
-							p.getTalle(),
-							p.getStock(),
-							p.getUltimoCosto(),
-							p.getUltimoPrecio()
-					};
-					model.addRow(fila);
-				}
-				
+				Object[] fila = {
+						p.getMarca(),
+						p.getCategoria(),
+						p.getTipo(),
+						p.getColor(),
+						p.getDescripcion(),
+						p.getTalle(),
+						p.getStock(),
+						p.getUltimoCosto(),
+						p.getUltimoPrecio()
+				};
+				model.addRow(fila);
 				mapaFilaRopa.put(rowIndex, p);
 				rowIndex++;
 			}
 		}
 	}
 	
-	private String talleRemerasString(int talle, String genero) {
-		if(genero.equals("F")) {
-			if (talle == 24) {
-				return "S";
-			}
-			else if (talle == 26) {
-				return "M";
-			}
-			else if (talle == 28) {
-				return "L";
-			}
-			else if (talle == 30) {
-				return "XL";
-			}
-			else if (talle == 32) {
-				return "XXL";
-			}
-			else if (talle == 34) {
-				return "XXXL";
-			}
-		} else if (genero.equals("M")){
-			if (talle == 28) {
-				return "S";
-			}
-			else if (talle == 30) {
-				return "M";
-			}
-			else if (talle == 32) {
-				return "L";
-			}
-			else if (talle == 34) {
-				return "XL";
-			}
-			else if (talle == 36) {
-				return "XXL";
-			}
-			else if (talle == 38) {
-				return "XXXL";
-			}
-		}
-		return "ESPECIAL";
-	}
-
+	//Removi el metodo de obtener talle en string
+	
 	private void limpiarFiltros() {
 		cbFiltroColor.setSelectedIndex(0);
 		cbFiltroMarca.setSelectedIndex(0);
@@ -459,6 +386,7 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 			dispose();
 			panelGestorVentas.setEnabled(true);
 			panelGestorVentas.toFront();
+			limpiarFiltros();
 		}
 		
 		if (e.getSource() == btnNuevo) {
@@ -466,6 +394,7 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 			PanelNuevaPrenda carga = new PanelNuevaPrenda(gestorPrendas, this);
 			carga.setVisible(true);
 			carga.toFront();
+			limpiarFiltros();
 		}
 		
 		if (e.getSource() == btnModificar) {
@@ -477,6 +406,7 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 			        						this, mapaFilaRopa.get(seleccion));
 			        mod.setVisible(true);
 			        mod.toFront();
+			        limpiarFiltros();
 			    }
 			} else {
 				JOptionPane.showMessageDialog(this, 
@@ -552,7 +482,7 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 			Predicate<Prenda> colorFiltro = p -> cbFiltroColor.getSelectedIndex() <= 0 
 											|| p.getColor().equals(cbFiltroColor.getSelectedItem().toString());
 			Predicate<Prenda> talleFiltro = p -> cbFiltroTalle.getSelectedIndex() <= 0 
-											|| p.getTalle() == (Integer.parseInt(cbFiltroTalle.getSelectedItem().toString()));
+											|| p.getTalle().equals(cbFiltroTalle.getSelectedItem().toString());
 			Predicate<Prenda> categoriaFiltro = p -> cbFiltroCategoria.getSelectedIndex() <= 0 
 											|| p.getCategoria().equals(cbFiltroCategoria.getSelectedItem().toString());
 
@@ -570,6 +500,7 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 			        		mapaFilaRopa.get(seleccion));
 			        mod.setVisible(true);
 			        mod.toFront();
+			        limpiarFiltros();
 			    }
 			}
 			else {
@@ -581,43 +512,79 @@ public class PanelGestorStock extends JFrame implements ActionListener {
 		}
 		
 		if(e.getSource() == btnAjustePrecio) {
-			String procentaje = JOptionPane.showInputDialog(this, 
-		            "Ingrese el porcentaje (positivo para aumento, negativo para descuento):", 
+			String precio = JOptionPane.showInputDialog(this, 
+		            "Ingrese el nuevo precio de los prodctos que se muestran en pantalla", 
 		            "Ajuste de Precios", 
 		            JOptionPane.QUESTION_MESSAGE);
-			if(procentaje != null) {
+			if(precio != null) {
 				int confirmado = JOptionPane.showConfirmDialog(
 		            this,
-		            "¿Realizar cambio de precio a los panralones?",
+		            "¿Realizar cambio de precio a los productos?",
 		            "Confirmar el cambio",
 		            JOptionPane.OK_CANCEL_OPTION,
 		            JOptionPane.PLAIN_MESSAGE);
 				if (confirmado == JOptionPane.OK_OPTION) {
 					try {
-						int porcentajeModificar = Integer.parseInt(procentaje.trim());
-						modificarPrecio(porcentajeModificar);
+						int nuevoPrecio = Integer.parseInt(precio.trim());
+						modificarPrecio(nuevoPrecio);
 					} catch (NumberFormatException ex) {
 						 JOptionPane.showMessageDialog(this, 
-				                    "Porcentaje inválido. Por favor ingrese un número.", 
+				                    "Precio inválido. Por favor ingrese un número.", 
 				                    "Error", 
 				                    JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
 		}
+		
+		if(e.getSource() == btnAjusteCosto) {
+			String costo = JOptionPane.showInputDialog(this, 
+		            "Ingrese el nuevo costo de los prodctos que se muestran en pantalla", 
+		            "Ajuste de Costo", 
+		            JOptionPane.QUESTION_MESSAGE);
+			if(costo != null) {
+				int confirmado = JOptionPane.showConfirmDialog(
+		            this,
+		            "¿Realizar cambio de costo a los productos?",
+		            "Confirmar el cambio",
+		            JOptionPane.OK_CANCEL_OPTION,
+		            JOptionPane.PLAIN_MESSAGE);
+				if (confirmado == JOptionPane.OK_OPTION) {
+					try {
+						int nuevoCosto = Integer.parseInt(costo.trim());
+						modificarCosto(nuevoCosto);
+					} catch (NumberFormatException ex) {
+						 JOptionPane.showMessageDialog(this, 
+				                    "Costo inválido. Por favor ingrese un número.", 
+				                    "Error", 
+				                    JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		}
+		
 		if (e.getSource() == btnLimpiarFiltros) {
 			limpiarFiltros();
 		}
 	}
 
-	private void modificarPrecio(int porcentajeModificar) {
+	private void modificarPrecio(int precioNuevo) {
 		for (Prenda p : prendasFiltradas) {
-			double valorAumento;
-			valorAumento = (p.getUltimoPrecio() * porcentajeModificar) / 100;
-			gestorPrendas.modificarPrenda((p.getUltimoPrecio() + valorAumento), 
+			gestorPrendas.modificarPrenda((precioNuevo), 
 								p.getUltimoCosto(), p.getTalle(), p.getStock(), 
 								p.getDescripcion(), p);
 			actualizarListado(estado);
+			limpiarFiltros();
+		}
+	}
+	
+	private void modificarCosto(int precioCosto) {
+		for (Prenda p : prendasFiltradas) {
+			gestorPrendas.modificarPrenda(p.getUltimoPrecio(), 
+								precioCosto, p.getTalle(), p.getStock(), 
+								p.getDescripcion(), p);
+			actualizarListado(estado);
+			limpiarFiltros();
 		}
 	}
 

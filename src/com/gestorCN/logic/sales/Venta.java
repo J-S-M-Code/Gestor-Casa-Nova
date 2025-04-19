@@ -14,11 +14,12 @@ public class Venta {
 	private double costo; 
 	private int cuotas;
 	private String medioPago;
+	private int cancelada;
 	private ArrayList<Integer> idPrendasVenta;
 	
 	/* Constructo BD */
 	public Venta(int nroVenta, GregorianCalendar fecha, double monto, double costo, 
-			String medioPago, int cuotas, ArrayList<Integer> idPrendasVenta) {
+			String medioPago, int cuotas, ArrayList<Integer> idPrendasVenta, int cancelada) {
 		this.nroVenta = nroVenta;
 		this.fecha = fecha;
 		this.monto = monto;
@@ -26,6 +27,7 @@ public class Venta {
 		this.medioPago = medioPago;
 		this.cuotas = cuotas;
 		this.idPrendasVenta = idPrendasVenta;
+		this.cancelada = cancelada;
 	}
 	
 	/* Contructor nuevo */ 
@@ -35,6 +37,7 @@ public class Venta {
 		this.fecha = fecha;
 		this.medioPago = medioPago;
 		this.cuotas = cuotas;
+		this.cancelada = 0;
 		idPrendasVenta = new ArrayList<Integer>();
 		for (Prenda r : prendasVenta) {
 			this.monto += r.getUltimoPrecio();
@@ -70,7 +73,11 @@ public class Venta {
 		return medioPago;
 	}
 
-	public ArrayList<Integer> getIdPrendasVenta() {
+	public int getStatus() {
+		return this.cancelada;
+	}
+	
+ 	public ArrayList<Integer> getIdPrendasVenta() {
 		return idPrendasVenta;
 	}
 
@@ -86,5 +93,9 @@ public class Venta {
 	public String getFechaString() {
 		SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
 		return sfd.format(fecha.getTime());
+	}
+
+	public void setStatus(int cancelada) {
+		this.cancelada = cancelada;
 	}
 }

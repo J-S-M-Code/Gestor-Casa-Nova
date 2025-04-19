@@ -249,7 +249,7 @@ public class PanelModificarPrenda extends JFrame implements ActionListener {
 		String descripcion;
 		double precio = -1;
 		double costo = -1;
-		int talle = -1;
+		String talle = "-1";
 		int stock;
 		if (textFieldIngresoStock.getText().trim().isEmpty()) {
 			textFieldIngresoStock.setText("0");
@@ -260,7 +260,7 @@ public class PanelModificarPrenda extends JFrame implements ActionListener {
 					&& (!textFieldCosto.getText().equals(""))) {
 				costo = Double.parseDouble(textFieldCosto.getText().trim());
 				precio = Double.parseDouble(textFieldPrecio.getText().trim());
-				talle = Integer.parseInt((String) cbTalles.getSelectedItem());
+				talle = cbTalles.getSelectedItem().toString();
 				
 				if (prenda.getStock() + Integer.parseInt(textFieldIngresoStock.getText().trim()) < 0) {
 					throw new NumeroInvalido("El numero no puede ser menor que el stock");

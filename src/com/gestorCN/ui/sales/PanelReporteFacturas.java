@@ -33,6 +33,7 @@ import javax.swing.SwingConstants;
 import com.gestorCN.logic.sales.GestorVentas;
 import com.gestorCN.logic.sales.Venta;
 import com.gestorCN.logic.stock.GestorPrendas;
+import com.gestorCN.logic.stock.Prenda;
 import com.toedter.calendar.JDateChooser;
 import java.awt.Dimension;
 import javax.swing.GroupLayout;
@@ -51,6 +52,7 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 	private JTable table;
 	private JButton btnCargar;
 	private JButton btnItemsFactura;
+	private JButton btnCancelarVenta;
 	private JButton btnDetallesFacturacion;
 	private ArrayList<Venta> ventasFechas;
 	private DefaultTableModel model;
@@ -68,7 +70,7 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setMinimumSize(new Dimension(810, 600));
-		setBounds(100, 100, 810, 600);
+		setBounds(100, 100, 867, 641);
 		setLocationRelativeTo(null);
 		
 		this.gestorVentas = gestorVentas;
@@ -83,6 +85,7 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		});
 		
 		iniciarComponentes();
+		cargarUltimasFacturas();
 	}
 
 	@SuppressWarnings("serial")
@@ -120,39 +123,47 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		btnItemsFactura = new JButton("Items Venta");
 		btnItemsFactura.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnItemsFactura.addActionListener(this);
+		
+		btnCancelarVenta = new JButton("Cancelar Venta");
+		btnCancelarVenta.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnCancelarVenta.addActionListener(this);
 		GroupLayout gl_panelSuperior = new GroupLayout(panelSuperior);
 		gl_panelSuperior.setHorizontalGroup(
 			gl_panelSuperior.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelSuperior.createSequentialGroup()
-					.addGap(71)
+					.addGap(20)
 					.addComponent(lblFechaDesde)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(dateChooserDesde, GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
-					.addGap(32)
+					.addComponent(dateChooserDesde, GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+					.addGap(18)
 					.addComponent(lblFechaHasta)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(dateChooserHasta, GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+					.addComponent(dateChooserHasta, GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
+					.addGap(18)
+					.addComponent(btnCargar, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+					.addGap(30)
+					.addComponent(btnCancelarVenta, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addGap(33)
-					.addComponent(btnCargar, GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
-					.addGap(41)
-					.addComponent(btnItemsFactura, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addGap(19))
+					.addComponent(btnItemsFactura)
+					.addContainerGap())
 		);
 		gl_panelSuperior.setVerticalGroup(
 			gl_panelSuperior.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelSuperior.createSequentialGroup()
 					.addGap(18)
-					.addGroup(gl_panelSuperior.createParallelGroup(Alignment.LEADING, false)
-						.addComponent(dateChooserDesde, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addGroup(Alignment.TRAILING, gl_panelSuperior.createParallelGroup(Alignment.BASELINE)
-							.addComponent(btnCargar, GroupLayout.PREFERRED_SIZE, 20, Short.MAX_VALUE)
-							.addComponent(btnItemsFactura, 0, 0, Short.MAX_VALUE))
-						.addComponent(dateChooserHasta, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(lblFechaHasta)
-						.addGroup(gl_panelSuperior.createSequentialGroup()
-							.addGap(1)
-							.addComponent(lblFechaDesde)))
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+					.addGroup(gl_panelSuperior.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panelSuperior.createParallelGroup(Alignment.TRAILING, false)
+							.addGroup(gl_panelSuperior.createSequentialGroup()
+								.addGap(1)
+								.addComponent(lblFechaDesde))
+							.addComponent(lblFechaHasta)
+							.addComponent(dateChooserHasta, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(dateChooserDesde, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_panelSuperior.createParallelGroup(Alignment.BASELINE)
+							.addComponent(btnCancelarVenta, GroupLayout.PREFERRED_SIZE, 24, Short.MAX_VALUE)
+							.addComponent(btnCargar, GroupLayout.PREFERRED_SIZE, 22, Short.MAX_VALUE))
+						.addComponent(btnItemsFactura, 0, 0, Short.MAX_VALUE))
+					.addContainerGap())
 		);
 		panelSuperior.setLayout(gl_panelSuperior);
 		
@@ -261,7 +272,6 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 				pdf.setVisible(true);
 				pdf.toFront();
 			}
-			
 		}
 		
 		if (e.getSource() == btnItemsFactura) {
@@ -281,6 +291,35 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 			            JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
+		
+		if (e.getSource() == btnCancelarVenta) {
+			int seleccion = table.getSelectedRow();
+			if (seleccion != -1) {
+				int confirmado = JOptionPane.showConfirmDialog(
+			            this,
+			            "¿Realizar cambio de estado?",
+			            "Confirmar cambio de estado",
+			            JOptionPane.OK_CANCEL_OPTION,
+			            JOptionPane.PLAIN_MESSAGE);
+				if (mapaFilaVenta.containsKey(seleccion) || confirmado == JOptionPane.OK_OPTION) {
+					Venta factura = mapaFilaVenta.get(seleccion);
+					ArrayList<Prenda> prendas = gestorPrendas.getPrendas();
+					gestorVentas.cancelarVenta(factura);
+					for(Integer i : factura.getIdPrendasVenta()) {
+						Prenda prenda = (Prenda) prendas.
+													stream().
+													filter(p -> p.getIdRopa() == i);
+						prenda.actualizarStock(1);
+					}
+					actualizarTabla();
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, 
+			            "Seleccione una venta", 
+			            "Notificación", 
+			            JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
 	}
 
 	private void cargarCampos() {
@@ -289,9 +328,11 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		double gananciaTotal = 0;
 		if (ventasFechas != null) {
 			for (Venta v : ventasFechas) {
-				montoTotal += v.getMonto();
-				costoTotal += v.getCosto();
-			}
+				if (v.getStatus() != 1) {
+					montoTotal += v.getMonto();
+					costoTotal += v.getCosto();
+				}
+			}	
 		}
 		gananciaTotal = montoTotal - costoTotal;
 		
@@ -307,18 +348,20 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		int rowIndex = 0;
 		if (ventasFechas != null) {
 			for (Venta v : ventasFechas) {
-				Object[] fila = {
-						v.getNroVenta(),
-						sdf.format(v.getFecha().getTime()),
-						v.getMonto(),
-						v.getCosto(),
-						v.getMedioPago(),
-						v.getCuotas(),
-						v.getIdPrendasVenta().size()
-				};
-				model.addRow(fila);
-				mapaFilaVenta.put(rowIndex++, v);
-			}
+				if (v.getStatus() != 1) {
+					Object[] fila = {
+							v.getNroVenta(),
+							sdf.format(v.getFecha().getTime()),
+							v.getMonto(),
+							v.getCosto(),
+							v.getMedioPago(),
+							v.getCuotas(),
+							v.getIdPrendasVenta().size()
+					};
+					model.addRow(fila);
+					mapaFilaVenta.put(rowIndex++, v);
+					}
+				}
 		}	
 	}
 
@@ -346,5 +389,35 @@ public class PanelReporteFacturas extends JFrame implements ActionListener {
 		}
 		return false;
 	}
-
+	
+	private void cargarUltimasFacturas() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Calendar fechaHoy = GregorianCalendar.getInstance();
+		Calendar fechaUltimaFactura = (Calendar) fechaHoy.clone();
+		fechaUltimaFactura.add(Calendar.MONTH, -2);
+		ventasFechas = gestorVentas.getReporteVentas(sdf.format(fechaUltimaFactura.getTime()),
+														sdf.format(fechaHoy.getTime()));
+		
+		model.setRowCount(0);
+		mapaFilaVenta.clear();
+		int rowIndex = 0;
+		if (ventasFechas != null) {
+			for (Venta v : ventasFechas) {
+				if (v.getStatus() != 1) {
+					Object[] fila = {
+							v.getNroVenta(),
+							sdf.format(v.getFecha().getTime()),
+							v.getMonto(),
+							v.getCosto(),
+							v.getMedioPago(),
+							v.getCuotas(),
+							v.getIdPrendasVenta().size()
+					};
+					model.addRow(fila);
+					mapaFilaVenta.put(rowIndex++, v);
+				}
+			}
+		}
+		
+	}
 }

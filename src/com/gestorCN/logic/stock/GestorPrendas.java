@@ -85,7 +85,7 @@ public class GestorPrendas {
 			while (rsPrendas.next()) {
 				/* */
 				int idPrenda = rsPrendas.getInt("ropaId");
-				int talle = rsPrendas.getInt("talle");
+				String talle = rsPrendas.getString("talle");
 				int stock = rsPrendas.getInt("stock");
 				int activo = rsPrendas.getInt("activo");
 				String marca = rsPrendas.getString("marca");
@@ -169,7 +169,7 @@ public class GestorPrendas {
 	}
 	
 	public String nuevaPrenda(String marca, String tipo, String color, 
-			String descripcion, int talle, int stock,
+			String descripcion, String talle, int stock,
 			double precio, double costo, String genero, String categoria) {
 		String msg = "No hizo nada";
 		int idNuevaPrenda = this.listaPrendas.size();
@@ -208,7 +208,7 @@ public class GestorPrendas {
 					/* */
 					String sqlTalle = "SELECT talleId FROM talles WHERE talle = ?";
 					PreparedStatement psTalle = conexion.prepareStatement(sqlTalle);
-					psTalle.setInt(1, talle);
+					psTalle.setString(1, talle);
 					ResultSet rsTalle = psTalle.executeQuery();
 					int talleId = rsTalle.next() ? rsTalle.getInt("talleId") : 0;
 					/* */
@@ -299,7 +299,7 @@ public class GestorPrendas {
 			p.getCategoria().equals(nuevaPrenda.getCategoria()) &&
 			p.getDescripcion().equals(nuevaPrenda.getDescripcion()) &&
 			p.getTipo().equals(nuevaPrenda.getTipo()) &&
-			p.getTalle() == nuevaPrenda.getTalle() &&
+			p.getTalle().equals(nuevaPrenda.getTalle()) &&
 			p.getColor().equals(nuevaPrenda.getColor())
 			);
 	}
@@ -383,12 +383,13 @@ public class GestorPrendas {
 		}
 	}
 	
-	public String modificarPrenda(double precio, double costo, int talle, 
+	public String modificarPrenda(double precio, double costo, String talle, 
 			int stock, String descripcion, Prenda prenda) {
 		
 		Predicate<Prenda> verificar = p -> 
 		p.getUltimoPrecio() == precio &&
-		p.getTalle() == talle &&
+		p.getUltimoCosto() == costo &&
+		p.getTalle().equals(talle) &&
 		p.getStock() == stock &&
 		p.getDescripcion().equals(descripcion);
 		
@@ -410,7 +411,7 @@ public class GestorPrendas {
 				
 				String sqlTalle = "SELECT talleId FROM talles WHERE talle = ?";
 				PreparedStatement psTalle = conexion.prepareStatement(sqlTalle);
-				psTalle.setInt(1, talle);
+				psTalle.setString(1, talle);
 				ResultSet rsTalle = psTalle.executeQuery();
 				int talleId = rsTalle.next() ? rsTalle.getInt("talleId") : 0;
 				
@@ -555,7 +556,7 @@ public class GestorPrendas {
 			Collections.sort(talles, new Comparator<String>() {
 				@Override
 				public int compare(String n1, String n2) {
-					return Integer.parseInt(n1) - Integer.parseInt(n2);
+					return n1.compareTo(n2);
 				}
 			});
 			stmt.close();
@@ -683,6 +684,11 @@ public class GestorPrendas {
 		return msg;
 	}
 	
+	
+	/**
+	 * Cuando se agrege nueva funcionalidad para caracteristicas se puede cargar
+	 * tanto numericos como alfaveticos, por el momento solo numericos
+	 * */
 	public String nuevoTalle(String talle) {
 		String msg = "El talle ya existe";
 		int nroTalle;
@@ -694,9 +700,10 @@ public class GestorPrendas {
 			}
 			if(caracteristicas.get(2).stream().noneMatch(p-> p.equals(talle))) {
 				conexion = DriverManager.getConnection(url);
-				String sqlTalles = "INSERT INTO talles (talle) VALUES (?)";
+				String sqlTalles = "INSERT INTO talles (talle, tren) VALUES (?, ?)";
 				psTalle = conexion.prepareStatement(sqlTalles);
 				psTalle.setInt(1, nroTalle);
+				psTalle.setInt(1, 0);
 				psTalle.executeUpdate();
 				msg = "Talle cargado con exito";
 			}

@@ -69,6 +69,7 @@ public class GestorVentas {
 				double monto = rsVentas.getDouble("monto");
 				double costo = rsVentas.getDouble("costo");
 				int cuotas = rsVentas.getInt("cuotas");
+				int cancelada = rsVentas.getInt("cancelada");
 				String medioPago = rsVentas.getString("medioPago"); 
 				GregorianCalendar fecha = new GregorianCalendar();
 				Timestamp timestampFecha = rsVentas.getTimestamp("fecha");
@@ -88,7 +89,7 @@ public class GestorVentas {
 				}
 				
 				listaVentas.add(new Venta(nroVenta, fecha, monto, 
-						costo, medioPago, cuotas, idRopaVenta));
+						costo, medioPago, cuotas, idRopaVenta, cancelada));
 			}
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, 
@@ -178,6 +179,7 @@ public class GestorVentas {
 		String medioPago;
 		int cuotas;
 		int item;
+		int cancelada;
 		
 		try {
 			java.util.Date utilDateDesde = sdf.parse(fechaDesde);
@@ -202,6 +204,7 @@ public class GestorVentas {
 				costo = rsVentasFecha.getDouble("costo");
 				medioPago = rsVentasFecha.getString("medioPago");
 				cuotas = rsVentasFecha.getInt("cuotas");
+				cancelada = rsVentasFecha.getInt("cancelada");
 				
 				fecha = new GregorianCalendar();
 				Timestamp timestampFecha = rsVentasFecha.getTimestamp("fecha");
@@ -221,9 +224,9 @@ public class GestorVentas {
 				while (rsItemsVenta.next()) {
 					item = rsItemsVenta.getInt("ropaId");
 					listaItems.add(item);
-				}
+				} 
 				listaVentasFecha.add(new Venta(numeroVenta, fecha, monto, 
-						costo, medioPago, cuotas, listaItems));
+						costo, medioPago, cuotas, listaItems, cancelada));
 			}
 	    } catch (ParseException e) {
 	    	JOptionPane.showMessageDialog(null, 
@@ -239,6 +242,28 @@ public class GestorVentas {
 			        JOptionPane.ERROR_MESSAGE);
 	    }
 		return listaVentasFecha;
+	}
+
+	public void cancelarVenta(Venta factura) {
+		PreparedStatement psActualizar = null;
+		try {
+			conexion = DriverManager.getConnection(url);
+			String sqlActualizarVenta = "UPDATE ventas SET cancelada = ? WHERE "
+					+ "nroVenta = ?";
+			psActualizar = conexion.prepareStatement(sqlActualizarVenta);
+			psActualizar.setInt(1, 1);
+			psActualizar.setInt(2, factura.getNroVenta());
+			psActualizar.executeUpdate();
+			factura.setStatus(1);
+		} catch (SQLException e) {
+			System.out.println("Error en la base de datos");
+		} finally {
+			try {
+				if (psActualizar != null) psActualizar.close();
+			} catch (SQLException e) {
+				System.out.println("Error en la base de datos");
+			}	
+		}
 	}	
 	
 }

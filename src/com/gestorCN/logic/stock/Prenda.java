@@ -1,6 +1,7 @@
 package com.gestorCN.logic.stock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import com.gestorCN.logic.exceptions.CampoVacio;
@@ -10,7 +11,7 @@ public class Prenda {
 	private int idRopa;
 	private String tipo;
 	private String color;
-	private int talle;
+	private String talle;
 	private String descripcion;
 	private ArrayList<Precio> listaPrecio;
 	private ArrayList<Costo> listaCosto;
@@ -21,7 +22,7 @@ public class Prenda {
 	private String categoria;
 	
 	/* New */
-	public Prenda(int id, String tipo, String color, int talle, 
+	public Prenda(int id, String tipo, String color, String talle, 
 			String descripcion, double precio, double costo, String marca, 
 			int cantidad, String genero, String categoria) throws CampoVacio, NumeroInvalido {
 		validarDatosString( tipo, color, marca, genero);
@@ -45,7 +46,7 @@ public class Prenda {
 	}
 
 	/* BD */
-	public Prenda(int idPrenda, String tipo, String color, int talle, 
+	public Prenda(int idPrenda, String tipo, String color, String talle, 
 			String descripcion, ArrayList<Precio> listaPrecio,
 			ArrayList<Costo> listaCosto, String marca, int stock, 
 			int activo, String genero, String categoria) {
@@ -63,11 +64,23 @@ public class Prenda {
 		this.categoria = categoria;
 	}
 	
-	public void validarDatosNumericos(double precio, double costo, int cantidad, int talle) 
+	public void validarDatosNumericos(double precio, double costo, int cantidad, String talle) 
 			throws NumeroInvalido {
-		if ((talle < 1) || (precio < 0) || (costo < 0) || (cantidad <= -1)) {
-			throw new NumeroInvalido("Ingrese un numero valido en los campos");
+		try {
+			if ((precio < 0) || (costo < 0) || (cantidad <= -1)) {
+				throw new NumeroInvalido("Ingrese un numero valido en los campos");
+			}
+			int talleNum = Integer.parseInt(talle);
+			if (talleNum < 1) {
+				throw new NumeroInvalido("Ingrese un numero valido en los campos");
+			}
+		} catch (NumberFormatException e) {
+			String[] talles = {"ESPECIAL", "XS", "S", "M", "L", "XL", "XXL", "XXXL"};
+			if (!Arrays.asList(talles).contains(talle)) {
+				throw new NumeroInvalido("Ingrese un numero valido en los campos");
+			}
 		}
+		
 	}
 
 	private void validarDatosString(String tipo, String color, String marca, String genero) 
@@ -99,11 +112,11 @@ public class Prenda {
 		return color;
 	}
 
-	public int getTalle() {
+	public String getTalle() {
 		return talle;
 	}
 	
-	public void setTalle(int talle) {
+	public void setTalle(String talle) {
 		this.talle = talle;
 	}
 

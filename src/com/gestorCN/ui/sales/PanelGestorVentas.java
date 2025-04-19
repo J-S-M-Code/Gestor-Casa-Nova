@@ -298,24 +298,56 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 		comboBoxMediosPagos.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		comboBoxMediosPagos.setModel(new DefaultComboBoxModel(new String[] {"Medios de pago", 
 									"Efectivo", "Tarjeta", "Chachos", "Transferencia"}));
-		comboBoxMediosPagos.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				calcularMontoTotal();
-				btnGuardarVenta.setVisible(comboBoxMediosPagos.getSelectedIndex() != 0
-						&& comboBoxCuotas.getSelectedIndex() != 0);
-			}
-		});
 		
 		comboBoxCuotas = new JComboBox();
 		comboBoxCuotas.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		comboBoxCuotas.setModel(new DefaultComboBoxModel(new String[] {"Coutas", "1", "3",
-								"6", "9", "12"}));
-		comboBoxCuotas.addItemListener(e -> {
+		comboBoxCuotas.setModel(new DefaultComboBoxModel(new String[] {"Coutas"}));
+		comboBoxCuotas.setEnabled(false); // Desactivado por defecto
+		
+		/* Acciones de los comboBox */
+		
+		comboBoxMediosPagos.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				btnGuardarVenta.setVisible(comboBoxCuotas.getSelectedIndex() != 0
-						&& comboBoxMediosPagos.getSelectedIndex() != 0);
+				String medioSeleccionado = (String) comboBoxMediosPagos.getSelectedItem();
+				
+				if ("Tarjeta".equals(medioSeleccionado)) {
+		            comboBoxCuotas.setModel(new DefaultComboBoxModel(new String[] {
+		                "Coutas", "1", "3", "6", "9", "12"
+		            }));
+		            comboBoxCuotas.setEnabled(true);
+				} else if (!"Medios de pago".equals(medioSeleccionado)) {
+					comboBoxCuotas.setModel(new DefaultComboBoxModel(new String[] {"1"}));
+					comboBoxCuotas.setSelectedIndex(0);
+			        comboBoxCuotas.setEnabled(false);
+				} else {
+					comboBoxCuotas.setModel(new DefaultComboBoxModel(new String[] {"Coutas"}));
+					comboBoxCuotas.setEnabled(false);
+				}
+				
+				
+				calcularMontoTotal();
+				 String cuotaSeleccionada = (String) comboBoxCuotas.getSelectedItem();
+			        btnGuardarVenta.setVisible(
+			            !medioSeleccionado.equals("Medios de pago") &&
+			            cuotaSeleccionada != null && !cuotaSeleccionada.equals("Coutas") &&
+			            prendaSeleccionada != null &&
+			            prendaSeleccionada.size() > 0
+			        		);
 			}
 		});
+		
+		comboBoxCuotas.addItemListener(e -> {
+			String medioSeleccionado = (String) comboBoxMediosPagos.getSelectedItem();
+	        String cuotaSeleccionada = (String) comboBoxCuotas.getSelectedItem();
+	        btnGuardarVenta.setVisible(
+	            !medioSeleccionado.equals("Medios de pago") &&
+	            cuotaSeleccionada != null && !cuotaSeleccionada.equals("Coutas") &&
+	            prendaSeleccionada != null &&
+	            prendaSeleccionada.size() > 0
+	        		);
+		});
+		
+		/*  */
 		
 		GroupLayout gl_panelAcciones = new GroupLayout(panelAcciones);
 		gl_panelAcciones.setHorizontalGroup(
@@ -441,9 +473,9 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
         				ropa.getCategoria().contains(palabra) ||
         				ropa.getTipo().contains(palabra) ||
         				ropa.getColor().contains(palabra) ||
-        				ropa.getDescripcion().contains(palabra) ||
+        				ropa.getDescripcion().toUpperCase().contains(palabra) ||
         				ropa.getMarca().contains(palabra) ||
-        				String.valueOf(ropa.getTalle()).contains(palabra);
+        				ropa.getTalle().contains(palabra);
         		if (!coincidenAtributos) {
                     todasCoinciden = false;
                     break;
@@ -487,8 +519,10 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 
 	private void calcularMontoTotal() {
 		double montoTotal = 0.0;
-		for (Prenda r : prendaSeleccionada) {
-			montoTotal += r.getUltimoPrecio();
+		if (prendaSeleccionada != null) {
+			for (Prenda r : prendaSeleccionada) {
+				montoTotal += r.getUltimoPrecio();
+			}
 		}
 		if (comboBoxMediosPagos.getSelectedItem().toString()
 				.toUpperCase().equals("TARJETA")) {
@@ -496,6 +530,8 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 		}
 		if (montoTotal != 0.0) {
 			textFieldTotal.setText(String.format("%.1f", montoTotal));
+		} else {
+			textFieldTotal.setText("0");
 		}
 	}
 
@@ -532,8 +568,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
             		gestorPrendas.modificarStock(prendaSeleccionada.get(seleccion), 
             							prendaSeleccionada.get(seleccion).getStock() +1);
             		prendaSeleccionada.remove(seleccion);
-                    actualizarProductos();
-                    calcularMontoTotal();
+            		actualizarProductos(); 
             	}
 			} else {
 				JOptionPane.showMessageDialog(this, 
@@ -556,6 +591,7 @@ public class PanelGestorVentas extends JFrame implements ActionListener {
 			
 			limpiar();
 			textFieldNumeroVenta.setText(Integer.toString(gestorVentas.getCantidadVentas()+1));
+			calcularMontoTotal();
 		}
 		
 		if (e.getSource() == btnCancelarVenta) {

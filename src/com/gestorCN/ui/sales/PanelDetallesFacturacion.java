@@ -68,17 +68,19 @@ public class PanelDetallesFacturacion extends JFrame {
 		double costoHombre = 0;
 		double costoMujer = 0;
 		for (Venta v : ventasFecha) {
-			prendaVenta = listaPrenda.stream()
-					.filter(p -> v.getIdPrendasVenta().contains(p.getIdRopa()))
-					.collect(Collectors.toCollection(ArrayList<Prenda>::new));
-			for (Prenda p : prendaVenta) {
-				if (p.getGenero().equals("M")) {
-					ventaHombre += p.getPrecioFecha(v.getFecha());
-					costoHombre += p.getCostoFecha(v.getFecha());
-				}
-				if (p.getGenero().equals("F")) {
-					ventaMujer += p.getPrecioFecha(v.getFecha());;
-					costoMujer += p.getCostoFecha(v.getFecha());
+			if (v.getStatus() != 1) {
+				prendaVenta = listaPrenda.stream()
+						.filter(p -> v.getIdPrendasVenta().contains(p.getIdRopa()))
+						.collect(Collectors.toCollection(ArrayList<Prenda>::new));
+				for (Prenda p : prendaVenta) {
+					if (p.getGenero().equals("M")) {
+						ventaHombre += p.getPrecioFecha(v.getFecha());
+						costoHombre += p.getCostoFecha(v.getFecha());
+					}
+					if (p.getGenero().equals("F")) {
+						ventaMujer += p.getPrecioFecha(v.getFecha());;
+						costoMujer += p.getCostoFecha(v.getFecha());
+					}
 				}
 			}
 		}
